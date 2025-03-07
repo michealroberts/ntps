@@ -5,7 +5,7 @@
 
 # **************************************************************************************
 
-from struct import pack
+from struct import pack, unpack
 
 # **************************************************************************************
 
@@ -21,6 +21,21 @@ def pack_timestamp(timestamp: float) -> bytes:
     fractional_seconds: int = int((timestamp - seconds) * (2**32))
 
     return pack("!I", seconds) + pack("!I", fractional_seconds)
+
+
+# **************************************************************************************
+
+
+def unpack_timestamp(data: bytes) -> float:
+    """
+    Unpack an 8-byte NTP timestamp into a float.
+    """
+    if len(data) != 8:
+        raise ValueError("Invalid timestamp length")
+
+    seconds, fractional_seconds = unpack("!I I", data)
+
+    return seconds + fractional_seconds / (2**32)
 
 
 # **************************************************************************************
