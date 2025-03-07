@@ -1,2 +1,3 @@
-# astral-uv-python-package-template
-A hypermodern python package starter template with astral uv ruff and mypy
+# ntps
+
+Modern, type-safe, zero-dependency python library for implementing a network time protocol (NTP) stratum 0 server.

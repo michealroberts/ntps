@@ -1,11 +1,35 @@
 [project]
-name = "astral-uv-python-package-template"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+name = "ntps"
+version = "0.0.0"
+description = "Modern, type-safe, zero-dependency python library for implementing a network time protocol (NTP) stratum 0 server"
 authors = [{ name = "michealroberts", email = "michael@observerly.com" }]
+maintainers = [{ name = "Michael Roberts", email = "michael@observerly.com" }]
+keywords = [
+    "network time protocol",
+    "ntp",
+    "network time protocol server",
+    "ntp server",
+    "ntp client",
+    "gps",
+    "gnss",
+    "stratum-0",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.13",
+]
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.13"
 dependencies = []
+
+[project.urls]
+Source = "https://github.com/michealroberts/ntps"
+Issues = "https://github.com/michealroberts/ntps/issues"
+PullRequests = "https://github.com/michealroberts/ntps/pulls"
+Discussions = "https://github.com/michealroberts/ntps/discussions"
 
 [build-system]
 requires = ["hatchling"]
