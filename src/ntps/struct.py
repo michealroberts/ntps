@@ -5,22 +5,22 @@
 
 # **************************************************************************************
 
-from .struct import pack_timestamp
+from struct import pack
 
 # **************************************************************************************
 
-__version__ = "0.0.0"
 
-# **************************************************************************************
+def pack_timestamp(timestamp: float) -> bytes:
+    """
+    Pack a floating-point timestamp into a 64-bit NTP timestamp.
 
-__license__ = "MIT"
+    The first 32 bits are the integer part, the next 32 bits are the fractional part.
+    """
+    seconds: int = int(timestamp)
 
-# **************************************************************************************
+    fractional_seconds: int = int((timestamp - seconds) * (2**32))
 
-__all__: list[str] = [
-    "__version__",
-    "__license__",
-    "pack_timestamp",
-]
+    return pack("!I", seconds) + pack("!I", fractional_seconds)
+
 
 # **************************************************************************************
