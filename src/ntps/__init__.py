@@ -5,7 +5,7 @@
 
 # **************************************************************************************
 
-from .packet import NTPPacketParameters
+from .packet import NTPPacket, NTPPacketParameters
 from .struct import pack_timestamp, unpack_timestamp
 
 # **************************************************************************************
@@ -23,6 +23,7 @@ __all__: list[str] = [
     "__license__",
     "pack_timestamp",
     "unpack_timestamp",
+    "NTPPacket",
     "NTPPacketParameters",
 ]
 

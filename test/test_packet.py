@@ -6,8 +6,9 @@
 # **************************************************************************************
 
 import unittest
+from struct import unpack
 
-from ntps.packet import NTPPacketParameters  # Import the TypedDict definition
+from ntps import NTPPacket, NTPPacketParameters
 
 # **************************************************************************************
 
@@ -101,6 +102,84 @@ class TestNTPPacketParameters(unittest.TestCase):
         }
         self.assertNotEqual(set(params.keys()), expected_keys)
         self.assertNotIn("reference_id", params.keys())
+
+
+# **************************************************************************************
+
+
+class TestNTPPacket(unittest.TestCase):
+    def setUp(self) -> None:
+        # Create a sample NTPPacketParameters dictionary with known values:
+        # The reference_id is derived from the bytes for "GPS\x00".
+        reference_id = unpack("!I", b"GPS\x00")[0]
+        self.params: NTPPacketParameters = {
+            "LI": 0,  # Leap Indicator: 0 (no warning)
+            "version": 4,  # NTP version: 4
+            "mode": 4,  # Mode: 4 (server)
+            "stratum": 0,  # Stratum: 0 (primary reference)
+            "poll": 0,  # Poll interval: example value 0
+            "precision": -20,  # Precision: example value in log₂ seconds
+            "root_delay": 0.0,  # Root delay: 0.0 seconds
+            "root_dispersion": 0.0,  # Root dispersion: 0.0 seconds
+            "reference_id": reference_id,  # Reference ID: from "GPS\x00"
+            "reference_timestamp": 1000.0,  # Reference timestamp: example value
+            "originate_timestamp": 1001.0,  # Originate timestamp: example value
+            "rx_timestamp": 1002.0,  # Receive timestamp: example value
+            "tx_timestamp": 1003.0,  # Transmit timestamp: example value
+        }
+
+    def test_to_bytes_length(self) -> None:
+        """
+        Verify that to_bytes() returns exactly 48 bytes.
+        """
+        packet = NTPPacket(self.params)
+        data = packet.to_bytes()
+        self.assertEqual(len(data), 48)
+
+    def test_round_trip(self) -> None:
+        """
+        Verify that converting a packet to bytes and then back using from_bytes()
+        results in an NTPPacket with equivalent parameters.
+        """
+        packet = NTPPacket(self.params)
+        data = packet.to_bytes()
+        new_packet = NTPPacket.from_bytes(data)
+
+        # Check integer fields for equality:
+        self.assertEqual(new_packet.LI, self.params["LI"])
+        self.assertEqual(new_packet.version, self.params["version"])
+        self.assertEqual(new_packet.mode, self.params["mode"])
+        self.assertEqual(new_packet.stratum, self.params["stratum"])
+        self.assertEqual(new_packet.poll, self.params["poll"])
+        self.assertEqual(new_packet.precision, self.params["precision"])
+        self.assertEqual(new_packet.reference_id, self.params["reference_id"])
+
+        # Check float fields using assertAlmostEqual due to potential minor floating point differences:
+        self.assertAlmostEqual(
+            new_packet.root_delay, self.params["root_delay"], places=6
+        )
+        self.assertAlmostEqual(
+            new_packet.root_dispersion, self.params["root_dispersion"], places=6
+        )
+        self.assertAlmostEqual(
+            new_packet.reference_timestamp, self.params["reference_timestamp"], places=6
+        )
+        self.assertAlmostEqual(
+            new_packet.originate_timestamp, self.params["originate_timestamp"], places=6
+        )
+        self.assertAlmostEqual(
+            new_packet.rx_timestamp, self.params["rx_timestamp"], places=6
+        )
+        self.assertAlmostEqual(
+            new_packet.tx_timestamp, self.params["tx_timestamp"], places=6
+        )
+
+    def test_from_bytes_invalid_length(self) -> None:
+        """
+        Verify that from_bytes() raises a ValueError if the data length is less than 48 bytes.
+        """
+        with self.assertRaises(ValueError):
+            NTPPacket.from_bytes(b"\x00" * 47)
 
 
 # **************************************************************************************
