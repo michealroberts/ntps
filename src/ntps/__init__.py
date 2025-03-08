@@ -6,6 +6,7 @@
 # **************************************************************************************
 
 from .packet import NTPPacket, NTPPacketParameters
+from .server import NTPServer
 from .struct import pack_timestamp, unpack_timestamp
 from .system import NTP_TIMESTAMP_DELTA, get_ntp_time
 
@@ -28,6 +29,7 @@ __all__: list[str] = [
     "NTP_TIMESTAMP_DELTA",
     "NTPPacket",
     "NTPPacketParameters",
+    "NTPServer",
 ]
 
 # **************************************************************************************
