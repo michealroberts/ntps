@@ -5,6 +5,7 @@
 
 # **************************************************************************************
 
+from .client import NTPClient
 from .packet import NTPPacket, NTPPacketParameters
 from .server import NTPServer
 from .struct import pack_timestamp, unpack_timestamp
@@ -27,6 +28,7 @@ __all__: list[str] = [
     "pack_timestamp",
     "unpack_timestamp",
     "NTP_TIMESTAMP_DELTA",
+    "NTPClient",
     "NTPPacket",
     "NTPPacketParameters",
     "NTPServer",
