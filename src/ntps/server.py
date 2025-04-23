@@ -19,7 +19,7 @@ from .system import get_ntp_time
 
 
 class NTPServer(DatagramProtocol):
-    refid: ReferenceID | Literal["Unknown"] = "Unknown"
+    refid: ReferenceID | Literal["UNKN"] = "UNKN"
 
     stratum: Literal[0, 1, 2, 3, 4] = 0
 
@@ -37,7 +37,8 @@ class NTPServer(DatagramProtocol):
         self.transport = cast(DatagramTransport, transport)
 
     def datagram_received(self, data: bytes, addr: Tuple[str, int]) -> None:
-        if self.refid == "Unknown":
+        # Check if the server reference identifier is set to a valid value:
+        if self.refid == "UNKN" or self.refid == "":
             raise ValueError(
                 "The server reference identifier must be set to a valid value."
             )
@@ -52,6 +53,9 @@ class NTPServer(DatagramProtocol):
         originate_timestamp_high, originate_timestamp_low = struct.unpack(
             "!II", originate_bytes
         )
+
+        rx_timestamp: float = self.get_ntp_time()
+
         # Obtain the time (in nanoseconds) before we get_ntp_time():
         before = time_ns()
 
@@ -67,8 +71,13 @@ class NTPServer(DatagramProtocol):
         # Get the leap indicator from the current reference timestamp:
         li: int = get_leap_indicator(timestamp=reference_timestamp)
 
-        # Derive the reference identifier by unpacking the bytes for "GPS\x00":
-        reference_id: int = struct.unpack("!I", b"GPS\x00")[0]
+        # Convert the reference identifier into a bytes buffer for unpacking, ensuring that the
+        # encoding value is exactly 4 bytes long:
+        refid_buffer: bytes = self.refid.encode("ascii").ljust(4, b"\x00")[:4]
+
+        # Convert the reference identifier into a bytes buffer for unpacking, ensuring that the
+        # encoding value is exactly 4 bytes long:
+        reference_id: int = struct.unpack("!I", refid_buffer)[0]
 
         # Retrieve the current system time to be used as the transmit timestamp:
         tx_timestamp: float = self.get_ntp_time()
@@ -84,11 +93,11 @@ class NTPServer(DatagramProtocol):
             "root_delay": delay,
             "root_dispersion": 0.001,
             "reference_id": reference_id,
-            "reference_timestamp": reference_timestamp,
-            "rx_timestamp": reference_timestamp,
-            "tx_timestamp": tx_timestamp,
+            "reference_timestamp": reference_timestamp,  # T0
             "originate_timestamp_high": originate_timestamp_high,  # T1
             "originate_timestamp_low": originate_timestamp_low,  # T1
+            "rx_timestamp": rx_timestamp,  # T2
+            "tx_timestamp": tx_timestamp,  # T3
         }
 
         # Create an NTPPacket instance using the defined parameters:
