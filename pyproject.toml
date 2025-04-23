@@ -1,6 +1,6 @@
 [project]
 name = "ntps"
-version = "0.1.0"
+version = "0.2.0"
 description = "Modern, type-safe, zero-dependency python library for implementing a network time protocol (NTP) stratum 0 server"
 authors = [{ name = "michealroberts", email = "michael@observerly.com" }]
 maintainers = [{ name = "Michael Roberts", email = "michael@observerly.com" }]
@@ -48,4 +48,4 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = [".", "src"]
-asyncio_default_fixture_loop_scope = ["session"]
+asyncio_default_fixture_loop_scope = "session"
