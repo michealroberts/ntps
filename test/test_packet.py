@@ -30,7 +30,8 @@ class TestNTPPacketParameters(unittest.TestCase):
             "root_dispersion": 0.0,
             "reference_id": 12345,
             "reference_timestamp": 1620000000.0,
-            "originate_timestamp": 1620000001.0,
+            "originate_timestamp_low": 1620000001,
+            "originate_timestamp_high": 1620000001,
             "rx_timestamp": 1620000002.0,
             "tx_timestamp": 1620000003.0,
         }
@@ -46,7 +47,8 @@ class TestNTPPacketParameters(unittest.TestCase):
             "root_dispersion",
             "reference_id",
             "reference_timestamp",
-            "originate_timestamp",
+            "originate_timestamp_low",
+            "originate_timestamp_high",
             "rx_timestamp",
             "tx_timestamp",
         }
@@ -61,7 +63,8 @@ class TestNTPPacketParameters(unittest.TestCase):
         self.assertIsInstance(params["root_dispersion"], float)
         self.assertIsInstance(params["reference_id"], int)
         self.assertIsInstance(params["reference_timestamp"], float)
-        self.assertIsInstance(params["originate_timestamp"], float)
+        self.assertIsInstance(params["originate_timestamp_low"], int)
+        self.assertIsInstance(params["originate_timestamp_high"], int)
         self.assertIsInstance(params["rx_timestamp"], float)
         self.assertIsInstance(params["tx_timestamp"], float)
 
@@ -123,7 +126,8 @@ class TestNTPPacket(unittest.TestCase):
             "root_dispersion": 0.0,  # Root dispersion: 0.0 seconds
             "reference_id": reference_id,  # Reference ID: from "GPS\x00"
             "reference_timestamp": 1000.0,  # Reference timestamp: example value
-            "originate_timestamp": 1001.0,  # Originate timestamp: example value
+            "originate_timestamp_low": 1001,  # Originate timestamp low: example value
+            "originate_timestamp_high": 1001,  # Originate timestamp high: example value
             "rx_timestamp": 1002.0,  # Receive timestamp: example value
             "tx_timestamp": 1003.0,  # Transmit timestamp: example value
         }
@@ -165,7 +169,14 @@ class TestNTPPacket(unittest.TestCase):
             new_packet.reference_timestamp, self.params["reference_timestamp"], places=6
         )
         self.assertAlmostEqual(
-            new_packet.originate_timestamp, self.params["originate_timestamp"], places=6
+            new_packet.originate_timestamp_low,
+            self.params["originate_timestamp_low"],
+            places=6,
+        )
+        self.assertAlmostEqual(
+            new_packet.originate_timestamp_high,
+            self.params["originate_timestamp_high"],
+            places=6,
         )
         self.assertAlmostEqual(
             new_packet.rx_timestamp, self.params["rx_timestamp"], places=6

@@ -13,7 +13,6 @@ from typing import Final, Literal, Optional, Tuple, cast
 from .leap_seconds import get_leap_indicator
 from .packet import NTPPacket, NTPPacketParameters
 from .refid import ReferenceID
-from .struct import unpack_timestamp
 from .system import get_ntp_time
 
 # **************************************************************************************
@@ -47,6 +46,12 @@ class NTPServer(DatagramProtocol):
         if self.transport is None:
             return
 
+        # Capture the raw originate timestamp bytes (or zeros if missing):
+        originate_bytes = data[40:48] if len(data) >= 48 else b"\x00" * 8
+
+        originate_timestamp_high, originate_timestamp_low = struct.unpack(
+            "!II", originate_bytes
+        )
         # Obtain the time (in nanoseconds) before we get_ntp_time():
         before = time_ns()
 
@@ -58,14 +63,6 @@ class NTPServer(DatagramProtocol):
 
         # Get the delay in the number of seconds when obtaining the synced system time:
         delay = (after - before) * 1e-9
-
-        # Check if the incoming data has at least 48 bytes to extract the client's timestamp:
-        if len(data) >= 48:
-            # Unpack the client's transmit timestamp (originate timestamp) from bytes 40 to 47:
-            originate_timestamp: float = unpack_timestamp(data[40:48])
-        else:
-            # Set the originate timestamp to 0.0 if not present:
-            originate_timestamp = 0.0
 
         # Get the leap indicator from the current reference timestamp:
         li: int = get_leap_indicator(timestamp=reference_timestamp)
@@ -88,9 +85,10 @@ class NTPServer(DatagramProtocol):
             "root_dispersion": 0.001,
             "reference_id": reference_id,
             "reference_timestamp": reference_timestamp,
-            "originate_timestamp": originate_timestamp,
             "rx_timestamp": reference_timestamp,
             "tx_timestamp": tx_timestamp,
+            "originate_timestamp_high": originate_timestamp_high,  # T1
+            "originate_timestamp_low": originate_timestamp_low,  # T1
         }
 
         # Create an NTPPacket instance using the defined parameters:
