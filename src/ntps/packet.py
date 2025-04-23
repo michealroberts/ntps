@@ -24,7 +24,8 @@ class NTPPacketParameters(TypedDict):
     root_dispersion: float
     reference_id: int
     reference_timestamp: float
-    originate_timestamp: float
+    originate_timestamp_low: int
+    originate_timestamp_high: int
     rx_timestamp: float
     tx_timestamp: float
 
@@ -44,7 +45,8 @@ class NTPPacket(object):
         self.root_dispersion: float = params["root_dispersion"]
         self.reference_id: int = params["reference_id"]
         self.reference_timestamp: float = params["reference_timestamp"]
-        self.originate_timestamp: float = params["originate_timestamp"]
+        self.originate_timestamp_high = params["originate_timestamp_high"]
+        self.originate_timestamp_low = params["originate_timestamp_low"]
         self.rx_timestamp: float = params["rx_timestamp"]
         self.tx_timestamp: float = params["tx_timestamp"]
 
@@ -62,7 +64,9 @@ class NTPPacket(object):
         # Pack the reference timestamp into an 8-byte NTP timestamp:
         packet += pack_timestamp(self.reference_timestamp)
         # Pack the originate timestamp into an 8-byte NTP timestamp:
-        packet += pack_timestamp(self.originate_timestamp)
+        packet += pack(
+            "!I I", self.originate_timestamp_high, self.originate_timestamp_low
+        )
         # Pack the receive timestamp into an 8-byte NTP timestamp:
         packet += pack_timestamp(self.rx_timestamp)
         # Pack the transmit timestamp into an 8-byte NTP timestamp:
@@ -97,7 +101,11 @@ class NTPPacket(object):
         # Unpack the reference timestamp from bytes 16 to 24:
         reference_timestamp = unpack_timestamp(data[16:24])
         # Unpack the originate timestamp from bytes 24 to 32:
-        originate_timestamp = unpack_timestamp(data[24:32])
+        # Capture the raw originate timestamp bytes (or zeros if missing):
+        originate_bytes = data[24:32] if len(data) >= 32 else b"\x00" * 8
+        originate_timestamp_high, originate_timestamp_low = unpack(
+            "!II", originate_bytes
+        )
         # Unpack the receive timestamp from bytes 32 to 40:
         rx_timestamp = unpack_timestamp(data[32:40])
         # Unpack the transmit timestamp from bytes 40 to 48:
@@ -116,7 +124,8 @@ class NTPPacket(object):
                 "root_dispersion": root_dispersion,
                 "reference_id": reference_id,
                 "reference_timestamp": reference_timestamp,
-                "originate_timestamp": originate_timestamp,
+                "originate_timestamp_high": originate_timestamp_high,
+                "originate_timestamp_low": originate_timestamp_low,
                 "rx_timestamp": rx_timestamp,
                 "tx_timestamp": tx_timestamp,
             }
