@@ -6,10 +6,11 @@
 # **************************************************************************************
 
 from .client import NTPClient
+from .correction import get_ntp_offset_correction
 from .packet import NTPPacket, NTPPacketParameters
 from .server import NTPServer
 from .struct import pack_timestamp, unpack_timestamp
-from .system import NTP_TIMESTAMP_DELTA, get_ntp_time
+from .system import NTP_TIMESTAMP_DELTA, get_ntp_time, set_system_time
 
 # **************************************************************************************
 
@@ -25,7 +26,9 @@ __all__: list[str] = [
     "__version__",
     "__license__",
     "get_ntp_time",
+    "get_ntp_offset_correction",
     "pack_timestamp",
+    "set_system_time",
     "unpack_timestamp",
     "NTP_TIMESTAMP_DELTA",
     "NTPClient",
