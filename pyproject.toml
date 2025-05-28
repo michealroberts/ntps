@@ -1,6 +1,6 @@
 [project]
 name = "ntps"
-version = "0.4.0"
+version = "0.5.0"
 description = "Modern, type-safe, zero-dependency python library for implementing a network time protocol (NTP) stratum 0 server"
 authors = [{ name = "michealroberts", email = "michael@observerly.com" }]
 maintainers = [{ name = "Michael Roberts", email = "michael@observerly.com" }]
