@@ -46,7 +46,7 @@ def get_ntp_offset_correction(
     """
     # Capture start of computation to measure function overhead for further offset
     # correction when setting the system time:
-    start = time() + NTP_TIMESTAMP_DELTA
+    start = time()
 
     # T1: Originate timestamp (high + low fractional):
     t1 = packet.originate_timestamp_high + packet.originate_timestamp_low / 2**32
