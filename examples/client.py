@@ -15,7 +15,7 @@ from ntps import NTP_TIMESTAMP_DELTA, NTPClient
 
 if __name__ == "__main__":
     # Create an instance of NTPClient with the desired endpoint and port:
-    client = NTPClient("0.0.0.0")
+    client = NTPClient("time.google.com")
 
     # Query the NTP endpoint and print the results:
     try:
@@ -44,7 +44,11 @@ if __name__ == "__main__":
     print("  Root Dispersion:", packet.root_dispersion)
     print("  Reference ID:", reference_id_bytes.decode("ascii").rstrip("\x00"))
     print("  Reference Timestamp:", packet.reference_timestamp)
-    print("  Originate Timestamp:", packet.originate_timestamp)
+    print(
+        "  Originate Timestamp:",
+        packet.originate_timestamp_high,
+        packet.originate_timestamp_low,
+    )
     print("  Receive Timestamp:", packet.rx_timestamp)
     print("  Transmit Timestamp:", packet.tx_timestamp)
 
