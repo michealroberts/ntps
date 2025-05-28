@@ -63,7 +63,7 @@ class TestNTPCorrection(unittest.TestCase):
         self.assertAlmostEqual(correction["delay"], 0.0, places=4)
         self.assertAlmostEqual(correction["offset"], 0.0, places=4)
         self.assertTrue(abs(correction["unix"] - now) < 0.00001)
-        self.assertTrue(correction["start"] >= ntp)
+        self.assertGreaterEqual(correction["start"] + NTP_TIMESTAMP_DELTA, ntp)
 
     def test_small_symmetric_latency(self) -> None:
         now = time()
@@ -75,7 +75,7 @@ class TestNTPCorrection(unittest.TestCase):
         self.assertAlmostEqual(correction["delay"], 0.0, places=4)
         self.assertAlmostEqual(correction["offset"], latency, places=4)
         self.assertTrue(abs(correction["unix"] - (now + latency)) < 0.1)
-        self.assertTrue(correction["start"] >= ntp)
+        self.assertGreaterEqual(correction["start"] + NTP_TIMESTAMP_DELTA, ntp)
 
     def test_asymmetric_latency(self) -> None:
         now = time()
