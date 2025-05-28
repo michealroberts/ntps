@@ -7,8 +7,11 @@
 
 from socket import AF_INET, SOCK_DGRAM, socket
 from struct import error as struct_error
+from struct import pack_into
+from time import time
 
 from .packet import NTPPacket
+from .system import NTP_TIMESTAMP_DELTA
 
 # **************************************************************************************
 
@@ -49,7 +52,23 @@ class NTPClient:
             client.settimeout(self.timeout)
 
             # Construct an NTP request packet:
-            request_packet = b"\x1b" + 47 * b"\0"
+            request_packet = bytearray(48)
+
+            # Set the first byte of the request packet to indicate LI=0, VN=3, Mode=3 (client).
+            # e.g., LI of 0 means no leap second warning, VN of 3 indicates NTP version 3,
+            # and Mode of 3 indicates a client request:
+            request_packet[0] = 0x1B  # LI=0, VN=3, Mode=3 (client)
+
+            # Compute and split our local send time into originate timestamp high/low
+            # NTP bytes:
+            now = time() + NTP_TIMESTAMP_DELTA
+            originate_timestamp_high = int(now)
+            originate_timestamp_low = int((now - originate_timestamp_high) * 2**32)
+
+            # Overwrite bytes 40–43 and 44–47 with our originate timestamp high/low
+            # NTP bytes:
+            pack_into("!I", request_packet, 40, originate_timestamp_high)
+            pack_into("!I", request_packet, 44, originate_timestamp_low)
 
             # Send the NTP request packet to the specified endpoint and port:
             client.sendto(request_packet, (self.endpoint, self.port))
